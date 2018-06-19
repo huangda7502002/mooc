@@ -15,10 +15,17 @@ const models = {
     'type': {type: String, require: true},
     'avatar': {type: String},
     'desc': {type: String},
-    'title': {type: String}
+    'title': {type: String},
+    'company': {type: String},
+    'money': {type: String},
   },
   chat: {
-
+    'chatid': {type:String, required: true},
+    'from': {type:String, require: true},
+    'to': {type:String,required: true},
+    'content': {type:String,required: true, default: ''},
+    'create_time': {type: Number,default: new Date().getTime()},
+    'read': {type: Boolean, default: false}
   }
 }
 

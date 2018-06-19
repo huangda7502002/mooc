@@ -4,6 +4,7 @@ const Router = express.Router()
 
 const model = require('./model')
 const User = model.getModel('user')
+const Chat = model.getModel('chat')
 
 const _filter = {'pwd':0,'_v':0}
 
@@ -11,6 +12,23 @@ function md5Pwd(pwd) {
   const salt = 'imooc_is_good_397x8yza6?2#'
   return utils.md5(utils.md5(pwd+salt))
 }
+
+Router.get('/getmsglist', function (req,res) {
+  const user = req.cookies.userid
+  User.find({}, function(err,userdoc) {
+    let users = {}
+    userdoc.forEach( v => {
+      users[v._id] = {name: v.user, avatar:v.avatar}
+    })
+    console.log(user)
+    Chat.find({'$or':[{from:user},{to:user}]}, function(err,doc) {
+      if (!err) {
+        console.log({code:0, msgs:doc, users:users})
+        return res.json({code:0, msgs:doc, users:users})
+      }
+    })
+  })
+})
 
 Router.get('/info', function (req, res) {
   const {userid} = req.cookies
@@ -72,8 +90,27 @@ Router.post('/update', function(req,res) {
 })
 
 Router.get('/list', function (req, res){
-  User.find({}, function(err,doc) {
-    return res.json(doc)
+  const {type} = req.query
+  User.find({type}, function(err,doc) {
+    return res.json({code:0,data:doc})
+  })
+})
+
+Router.get('/remove', function (req,res) {
+  User.remove({},function() {
+    res.json({code:0})
+  })
+})
+
+Router.get('/chatremove', function(req, res) {
+  Chat.remove({},function() {
+    res.json({code:0})
+  })
+})
+
+Router.get('/chatlist', function(req,res) {
+  Chat.find({},function(err, doc) {
+    res.json({code:0,data:doc})
   })
 })
 

@@ -6,6 +6,7 @@ import AuthRoute from './Component/authroute/authroute'
 import BossInfo from './Container/bossinfo/bossinfo'
 import GeniusInfo from './Container/geniusinfo/geniusinfo'
 import Dashboard from './Component/dashboard/dashboard'
+import Chat from './Component/chat/chat'
 
 class App extends Component {
   render() {
@@ -17,6 +18,7 @@ class App extends Component {
           <Route path={'/bossinfo'} component={BossInfo}/>
           <Route path={'/login'} component={Login}/>
           <Route path={'/register'} component={Register}/>
+          <Route path={'/chat/:user'} component={Chat}/>
           <Route component={Dashboard}/>
         </Switch>
       </div>

@@ -4,21 +4,25 @@ import {connect} from 'react-redux'
 import {NavBar} from 'antd-mobile'
 import NavLinkBar from '../navlink/navlink'
 import User from '../user/user'
+import Boss from '../boss/boss'
+import Genius from '../genius/genius'
+import {getMsgList, recvMsg} from "../../redux/chat.redux";
 
-function Boss() {
-  return <div>boss</div>
-}
-function Genius() {
-  return <div>genius</div>
-}
 function Msg() {
   return <div>msg</div>
 }
 
 @connect(
-  state => state
+  state => state,
+  {getMsgList, recvMsg}
 )
 export default class dashboard extends React.Component {
+  componentDidMount() {
+    if (!this.props.chat.chatmsg.length) {
+      this.props.getMsgList()
+      this.props.recvMsg()
+    }
+  }
   render() {
     const user = this.props.user
     const pathName = this.props.location.pathname
@@ -28,7 +32,7 @@ export default class dashboard extends React.Component {
         text:'牛人',
         icon: 'boss',
         title: '牛人列表',
-        component: Boss,
+        component: Genius,
         hide: user.type === 'genius'
       },
       {
@@ -36,7 +40,7 @@ export default class dashboard extends React.Component {
         text: 'boss',
         icon: 'job',
         title: 'BOSS列表',
-        component: Genius,
+        component: Boss,
         hide: user.type === 'boss'
       },
       {
@@ -56,7 +60,7 @@ export default class dashboard extends React.Component {
     ]
     return (
       <div>
-        <NavBar mode={'dard'}>{navList.find(v => v.path === pathName).title}</NavBar>
+        <NavBar className={'fixed-header'} mode={'dard'}>{navList.find(v => v.path === pathName).title}</NavBar>
         <div style={{marginTop:45}}>
           <Switch>
             {
