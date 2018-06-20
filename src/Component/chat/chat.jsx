@@ -1,22 +1,37 @@
 import React, {Component} from 'react';
 import {List, InputItem, NavBar, Icon, Grid} from 'antd-mobile'
 import {connect} from 'react-redux'
-import {sendMsg,getMsgList,recvMsg} from "../../redux/chat.redux";
+import {sendMsg,getMsgList,recvMsg, readMsg} from "../../redux/chat.redux";
 import {getChatId} from "../../util";
 
 @connect(
   state => state,
-  {sendMsg,getMsgList,recvMsg}
+  {sendMsg,getMsgList,recvMsg,readMsg}
 )
 export default class chat extends Component {
   state = {
-    text: ''
+    text: '',
+    showEmoji:false
   }
   componentDidMount() {
-    // if (!this.props.chat.chatmsg.length) {
-    //   this.props.getMsgList()
-    //   this.props.recvMsg()
-    // }
+    if (!this.props.chat.chatmsg.length) {
+      this.props.getMsgList()
+      this.props.recvMsg()
+    }
+    this.fixCarousel()
+  }
+  componentWillUnmount() {
+    const to = this.props.match.params.user
+    this.props.readMsg(to)
+  }
+  fixCarousel = () => {
+    setTimeout(function() {
+      window.dispatchEvent(new Event('resize'))
+    },0)
+  }
+  toggleEmoji = () => {
+    this.setState({showEmoji: !this.state.showEmoji})
+    this.fixCarousel()
   }
   handleSubmit = () => {
     const from = this.props.user._id
@@ -26,6 +41,11 @@ export default class chat extends Component {
     this.setState({text:''})
   }
   render() {
+    const emoji = 'a b c d e f g h i j k l m n o p q r s t u v w x y z'
+      .split(' ')
+      .filter( v => v)
+      .map(v => ({text:v}))
+
     const userid = this.props.match.params.user
     const users = this.props.chat.users
     if (!users[userid]) {
@@ -42,6 +62,7 @@ export default class chat extends Component {
           {users[userid].name}
         </NavBar>
         {chatmsgs.map((v,index) => {
+          console.log(users[v.from])
           const avatar = require(`../img/${users[v.from].avatar}.png`)
           return v.from === userid ?
             <List key={index}>
@@ -52,7 +73,7 @@ export default class chat extends Component {
             <List key={index}>
               <List.Item
                 className={'chat-me'}
-                extra={<img src={avatar}/>}>{v.content}</List.Item>
+                extra={<img alt={''} src={avatar}/>}>{v.content}</List.Item>
             </List>})
         }
         <div className={'stick-footer'}>
@@ -61,10 +82,21 @@ export default class chat extends Component {
               placeholder={'请输入'}
               value={this.state.text}
               onChange={v => this.setState({text:v})}
-              extra={<span onClick={this.handleSubmit}>发送</span>}/>
+              extra={
+                <div>
+                  <span onClick={this.toggleEmoji}
+                  style={{marginRight: 15}}>表情</span>
+                  <span onClick={this.handleSubmit}>发送</span>
+                </div>
+              }/>
           </List>
-          <Grid
-          data={emoji}/>
+          {this.state.showEmoji && <Grid
+            onClick={el => {
+              this.setState({text:this.state.text+el.text})
+            }}
+            columnNum={9}
+            isCarousel={true}
+          data={emoji}/>}
         </div>
       </div>
     );
